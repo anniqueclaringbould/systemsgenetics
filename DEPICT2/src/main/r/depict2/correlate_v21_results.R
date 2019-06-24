@@ -17,140 +17,99 @@ library(gplots)
 setwd('/Users/anniqueclaringbould/Documents/Projects/UMCG/Pathway-specific_PGS/DEPICT2/input/v2.0.21')
 
 ##### READ IN DATA #####
-sim_r <- fread('simulated/simulated_Reactome_Enrichment_zscore.txt')
-sim_gc <- fread('simulated/simulated_GO_C_Enrichment_zscore.txt')
-sim_gf <- fread('simulated/simulated_GO_F_Enrichment_zscore.txt')
-sim_gp <- fread('simulated/simulated_GO_P_Enrichment_zscore.txt')
-sim_h <- fread('simulated/simulated_HPO_Enrichment_zscore.txt')
-sim_k <- fread('simulated/simulated_KEGG_Enrichment_zscore.txt')
+sim_files <- list.files(path = './simulated', pattern = '_zscore.txt', full.names = TRUE)
+sim <- lapply(sim_files, fread)
+sim2_files <- list.files(path = './simulated2', pattern = '_zscore.txt', full.names = TRUE)
+sim2 <- lapply(sim2_files, fread)
+sim_no_cl_files <- list.files(path = './simulated_no_cl', pattern = '_zscore.txt', full.names = TRUE)
+sim_no_cl <- lapply(sim_no_cl_files, fread)
+sim2_no_cl_files <- list.files(path = './simulated2_no_cl', pattern = '_zscore.txt', full.names = TRUE)
+sim2_no_cl <- lapply(sim2_no_cl_files, fread)
+height_files <- list.files(path = './Height', pattern = '_zscore.txt', full.names = TRUE)
+height <- lapply(height_files, fread)
+height_no_cl_files <- list.files(path = './Height_no_cl', pattern = '_zscore.txt', full.names = TRUE)
+height_no_cl <- lapply(height_no_cl_files, fread)
+#ibd_files <- list.files(path = './IBD', pattern = '_zscore.txt', full.names = TRUE)
+#ibd <- lapply(ibd_files, fread)
+#ibd_no_cl_files <- list.files(path = './IBD_no_cl', pattern = '_zscore.txt', full.names = TRUE)
+#ibd_no_cl <- lapply(ibd_no_cl_files, fread)
+sle_files <- list.files(path = './SLE', pattern = '_zscore.txt', full.names = TRUE)
+sle <- lapply(sle_files, fread)
+sle_no_cl_files <- list.files(path = './SLE_no_cl', pattern = '_zscore.txt', full.names = TRUE)
+sle_no_cl <- lapply(sle_no_cl_files, fread)
 
-sim2_r <- fread('simulated2/simulated_Reactome_Enrichment_zscore.txt')
-sim2_gc <- fread('simulated2/simulated_GO_C_Enrichment_zscore.txt')
-sim2_gf <- fread('simulated2/simulated_GO_F_Enrichment_zscore.txt')
-sim2_gp <- fread('simulated2/simulated_GO_P_Enrichment_zscore.txt')
-sim2_h <- fread('simulated2/simulated_HPO_Enrichment_zscore.txt')
-sim2_k <- fread('simulated2/simulated_KEGG_Enrichment_zscore.txt')
+dms <- list()
 
-height_r <- fread('Height_Reactome_Enrichment_zscore.txt')
-height_gc <- fread('Height_GO_C_Enrichment_zscore.txt')
-height_gf <- fread('Height_GO_F_Enrichment_zscore.txt')
-height_gp <- fread('Height_GO_P_Enrichment_zscore.txt')
-height_h <- fread('Height_HPO_Enrichment_zscore.txt')
-height_k <- fread('Height_KEGG_Enrichment_zscore.txt')
+for (i in 1:6){
+  #save all enrichment terms
+  terms <- sim[[i]][,1]
+  
+  #remove enrichment terms from each dataset
+  sim[[i]] <- sim[[i]][,2:ncol(sim[[i]])]
+  sim2[[i]] <- sim2[[i]][,2:ncol(sim2[[i]])]
+  sim_no_cl[[i]] <- sim_no_cl[[i]][,2:ncol(sim_no_cl[[i]])]
+  #sim2_no_cl[[i]] <- sim2_no_cl[[i]][,2:ncol(sim2_no_cl[[i]])]
+  height[[i]] <- height[[i]][,2:ncol(height[[i]])]
+  height_no_cl[[i]] <- height_no_cl[[i]][,2:ncol(height_no_cl[[i]])]
+  sle[[i]] <- sle[[i]][,2:ncol(sle[[i]])]
+  sle_no_cl[[i]] <- sle_no_cl[[i]][,2:ncol(sle_no_cl[[i]])]
+  #ibd[[i]] <- ibd[[i]][,2:ncol(ibd[[i]])]
+  #ibd_no_cl[[i]] <- ibd_no_cl[[i]][,2:ncol(ibd_no_cl[[i]])]
+  
+  #change column names for each dataset
+  colnames(sim[[i]]) <- paste0('sim1_', colnames(sim[[i]]))
+  colnames(sim2[[i]]) <- paste0('sim2_', colnames(sim2[[i]]))
+  colnames(sim_no_cl[[i]]) <- paste0('sim1_no_cl_', colnames(sim_no_cl[[i]]))
+  #colnames(sim2_no_cl[[i]]) <- paste0('sim2_no_cl_', colnames(sim2_no_cl[[i]]))
+  colnames(height_no_cl[[i]]) <- paste0('no_cl_', colnames(height_no_cl[[i]]))
+  colnames(sle_no_cl[[i]]) <- paste0('no_cl_', colnames(sle_no_cl[[i]]))
+  #colnames(ibd_no_cl[[i]]) <- paste0('no_cl_', colnames(ibd_no_cl[[i]]))
+  
+  #bind together all datasets
+  dms[[i]] <- do.call("cbind", list(terms,
+                        sim[[i]],
+                        sim2[[i]],
+                        sim_no_cl[[i]],
+                        #sim2_no_cl[[i]],
+                        height[[i]],
+                        height_no_cl[[i]],
+                        sle[[i]],
+                        sle_no_cl[[i]]))
+                        #ibd[[i]],
+                        #ibd_no_cl[[i]]))
 
-height2_r <- fread('Height_no_cl/Height_Reactome_Enrichment_zscore.txt')
-height2_gc <- fread('Height_no_cl/Height_GO_C_Enrichment_zscore.txt')
-height2_gf <- fread('Height_no_cl/Height_GO_F_Enrichment_zscore.txt')
-height2_gp <- fread('Height_no_cl/Height_GO_P_Enrichment_zscore.txt')
-height2_h <- fread('Height_no_cl/Height_HPO_Enrichment_zscore.txt')
-height2_k <- fread('Height_no_cl/Height_KEGG_Enrichment_zscore.txt')
-
-sle_r <- fread('SLE_Reactome_Enrichment_zscore.txt')
-sle_gc <- fread('SLE_GO_C_Enrichment_zscore.txt')
-sle_gf <- fread('SLE_GO_F_Enrichment_zscore.txt')
-sle_gp <- fread('SLE_GO_P_Enrichment_zscore.txt')
-sle_h <- fread('SLE_HPO_Enrichment_zscore.txt')
-sle_k <- fread('SLE_KEGG_Enrichment_zscore.txt')
-
-ibd_r <- fread('IBD_Reactome_Enrichment_zscore.txt')
-ibd_gc <- fread('IBD_GO_C_Enrichment_zscore.txt')
-ibd_gf <- fread('IBD_GO_F_Enrichment_zscore.txt')
-ibd_gp <- fread('IBD_GO_P_Enrichment_zscore.txt')
-ibd_h <- fread('IBD_HPO_Enrichment_zscore.txt')
-ibd_k <- fread('IBD_KEGG_Enrichment_zscore.txt')
-
-##### ADJUST
-colnames(sim_r) <- paste0('sim1_', colnames(sim_r))
-colnames(sim2_r) <- paste0('sim2_', colnames(sim2_r))
-colnames(height2_r) <- paste0('no_cl_', colnames(height2_r))
-
-dm_r <- sle_r %>%
-  left_join(height_r, by = '-') %>%
-  left_join(height2_r, by = c('-' = 'no_cl_-')) %>%
-  left_join(ibd_r, by = '-') %>%
-  #left_join(sim_r, by = c('-' = 'sim_-')) %>%
-  left_join(sim2_r, by = c('-' = 'sim2_-'))
-
-colnames(sim_gc) <- paste0('sim1_', colnames(sim_gc))
-colnames(sim2_gc) <- paste0('sim2_', colnames(sim2_gc))
-colnames(height2_gc) <- paste0('no_cl_', colnames(height2_gc))
-
-dm_gc <- sle_gc %>%
-  left_join(height_gc, by = '-') %>%
-  left_join(height2_gc, by = c('-' = 'no_cl_-')) %>%
-  left_join(ibd_gc, by = '-') %>%
-  #left_join(sim_gc, by = c('-' = 'sim_-')) %>%
-  left_join(sim2_gc, by = c('-' = 'sim2_-'))
-
-colnames(sim_gf) <- paste0('sim1_', colnames(sim_gf))
-colnames(sim2_gf) <- paste0('sim2_', colnames(sim2_gf))
-colnames(height2_gf) <- paste0('no_cl_', colnames(height2_gf))
-
-dm_gf <- sle_gf %>%
-  left_join(height_gf, by = '-') %>%
-  left_join(height2_gf, by = c('-' = 'no_cl_-')) %>%
-  left_join(ibd_gf, by = '-') %>%
-  #left_join(sim_gf, by = c('-' = 'sim_-')) %>%
-  left_join(sim2_gf, by = c('-' = 'sim2_-'))
-
-colnames(sim_gp) <- paste0('sim1_', colnames(sim_gp))
-colnames(sim2_gp) <- paste0('sim2_', colnames(sim2_gp))
-colnames(height2_gp) <- paste0('no_cl_', colnames(height2_gp))
-
-dm_gp <- sle_gp %>%
-  left_join(height_gp, by = '-') %>%
-  left_join(height2_gp, by = c('-' = 'no_cl_-')) %>%
-  left_join(ibd_gp, by = '-') %>%
-  #left_join(sim_gp, by = c('-' = 'sim_-')) %>%
-  left_join(sim2_gp, by = c('-' = 'sim2_-'))
-
-colnames(sim_h) <- paste0('sim1_', colnames(sim_h))
-colnames(sim2_h) <- paste0('sim2_', colnames(sim2_h))
-colnames(height2_h) <- paste0('no_cl_', colnames(height2_h))
-
-dm_h <- sle_h %>%
-  left_join(height_h, by = '-') %>%
-  left_join(height2_h, by = c('-' = 'no_cl_-')) %>%
-  left_join(ibd_h, by = '-') %>%
-  #left_join(sim_h, by = c('-' = 'sim_-')) %>%
-  left_join(sim2_h, by = c('-' = 'sim2_-'))
-
-colnames(sim_k) <- paste0('sim1_', colnames(sim_k))
-colnames(sim2_k) <- paste0('sim2_', colnames(sim2_k))
-colnames(height2_k) <- paste0('no_cl_', colnames(height2_k))
-
-dm_k <- sle_k %>%
-  left_join(height_k, by = '-') %>%
-  left_join(height2_k, by = c('-' = 'no_cl_-')) %>%
-  left_join(ibd_k, by = '-') %>%
-  #left_join(sim_k, by = c('-' = 'sim_-')) %>%
-  left_join(sim2_k, by = c('-' = 'sim2_-'))
+  }
 
 ##### CORRELATIONS #####
-dm_r2 <- dm_r[, c(2:ncol(dm_r))]
-cors_r <- cor(dm_r2, method = 'spearman')
-
+dm_gc <- as.data.frame(dms[[1]])
 dm_gc2 <- dm_gc[, c(2:ncol(dm_gc))]
 cors_gc <- cor(dm_gc2, method = 'spearman')
 
+dm_gf <- as.data.frame(dms[[2]])
 dm_gf2 <- dm_gf[, c(2:ncol(dm_gf))]
 cors_gf <- cor(dm_gf2, method = 'spearman')
 
+dm_gp <- as.data.frame(dms[[3]])
 dm_gp2 <- dm_gp[, c(2:ncol(dm_gp))]
 cors_gp <- cor(dm_gp2, method = 'spearman')
 
+dm_h <- as.data.frame(dms[[4]])
 dm_h2 <- dm_h[, c(2:ncol(dm_h))]
 cors_h <- cor(dm_h2, method = 'spearman')
 
+dm_k <- as.data.frame(dms[[5]])
 dm_k2 <- dm_k[, c(2:ncol(dm_k))]
 cors_k <- cor(dm_k2, method = 'spearman')
 
+dm_r <- as.data.frame(dms[[6]])
+dm_r2 <- dm_r[, c(2:ncol(dm_r))]
+cors_r <- cor(dm_r2, method = 'spearman')
 
 ##### PLOT #####
 Colors=c("blue","white","red")
 Colors=colorRampPalette(Colors)(100)
 
-pdf('../../plots/heatmaps_v2.0.21.pdf')
+pdf('../../plots/heatmaps_v2.0.21.pdf', height = 12, width = 12)
 heatmap.2(cors_r, cellnote = round(cors_r,2), main = 'Reactome', 
           notecol="black", density.info='none', trace = 'none',
           dendogram = 'both', margins =c(11,11),Colv = NA, Rowv = NA,
@@ -214,8 +173,8 @@ ggplot(dm_r, aes(x=no_cl_HEIGHT, y=HEIGHT)) +
 ggsave("../../plots/reactome_height_height_no_cl_v21.png")
 
 p <- ggplot(dm_h, aes(x=no_cl_HEIGHT, y=HEIGHT, text = `-`)) +
-  geom_point(size = 0.5) +
+  geom_point() +
   theme_bw() +
   ggtitle('HPO Z-score height with and without -cl \n(DEPICT2.0.21)')
 ggplotly(p)
-ggsave("../../plots/reactome_height_height_no_cl_v21.png")
+ggsave("../../plots/hpo_height_height_no_cl_v21.png")
